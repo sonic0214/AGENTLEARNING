@@ -618,13 +618,31 @@ class PipelineRunner:
                                     eval_text += part.text
 
                             if eval_text:
-                                evaluation_result = evaluation_agent.parse_result(eval_text)
-                                state.evaluation_result = evaluation_result
-                                state.evaluation_score = evaluation_result.get("opportunity_score", 50)
+                                # Parse evaluation result from JSON
+                                evaluation_result_dict = extract_json_from_response(eval_text)
 
-                                self.logger.info(f"🎯 EVALUATION COMPLETED:")
-                                self.logger.info(f"   Score: {state.evaluation_score}/100")
-                                self.logger.info(f"   Recommendation: {evaluation_result.get('recommendation', 'Unknown')}")
+                                if evaluation_result_dict:
+                                    # Convert dict to EvaluationResult object
+                                    from src.schemas.output_schemas import EvaluationResult
+                                    state.evaluation_result = EvaluationResult.from_dict(evaluation_result_dict)
+                                    state.evaluation_score = state.evaluation_result.opportunity_score
+
+                                    self.logger.info(f"🎯 EVALUATION COMPLETED:")
+                                    self.logger.info(f"   Score: {state.evaluation_score}/100")
+                                    self.logger.info(f"   Recommendation: {state.evaluation_result.recommendation}")
+                                else:
+                                    self.logger.warning("⚠️ Failed to parse evaluation JSON, using fallback")
+                                    from src.schemas.output_schemas import EvaluationResult
+                                    state.evaluation_result = EvaluationResult(
+                                        opportunity_score=50,
+                                        dimension_scores={"trend": 50, "market": 50, "competition": 50, "profit": 50},
+                                        swot_analysis={"strengths": [], "weaknesses": [], "opportunities": [], "threats": []},
+                                        recommendation="cautious",
+                                        recommendation_detail="Evaluation parsing failed - using fallback values",
+                                        key_risks=["Unable to parse evaluation results"],
+                                        success_factors=["Manual review recommended"]
+                                    )
+                                    state.evaluation_score = 50
                             else:
                                 self.logger.warning("⚠️ No evaluation text content found")
                         else:
@@ -637,15 +655,16 @@ class PipelineRunner:
             except Exception as eval_error:
                 self.logger.error(f"❌ Evaluation phase failed: {eval_error}", exc_info=True)
                 # Fallback to basic evaluation
-                state.evaluation_result = {
-                    "opportunity_score": 50,
-                    "dimension_scores": {"trend": 30, "market": 30, "competition": 30, "profit": 30},
-                    "swot_analysis": {"strengths": [], "weaknesses": [], "opportunities": [], "threats": []},
-                    "recommendation": "cautious",
-                    "recommendation_detail": "Analysis completed but evaluation failed - manual review recommended",
-                    "key_risks": ["Incomplete analysis"],
-                    "success_factors": ["Requires validation"]
-                }
+                from src.schemas.output_schemas import EvaluationResult
+                state.evaluation_result = EvaluationResult(
+                    opportunity_score=50,
+                    dimension_scores={"trend": 30, "market": 30, "competition": 30, "profit": 30},
+                    swot_analysis={"strengths": [], "weaknesses": [], "opportunities": [], "threats": []},
+                    recommendation="cautious",
+                    recommendation_detail="Analysis completed but evaluation failed - manual review recommended",
+                    key_risks=["Incomplete analysis"],
+                    success_factors=["Requires validation"]
+                )
                 state.evaluation_score = 50
 
             elapsed = (datetime.now() - phase_start).total_seconds()
@@ -663,26 +682,35 @@ class PipelineRunner:
                 market_analysis = state.market_analysis or "No market analysis available"
                 competition_analysis = state.competition_analysis or "No competition analysis available"
                 profit_analysis = state.profit_analysis or "No profit analysis available"
-                evaluation_result = getattr(state, 'evaluation_result', {
-                    "opportunity_score": 50,
-                    "dimension_scores": {"trend": 50, "market": 50, "competition": 50, "profit": 50},
-                    "recommendation": "proceed",
-                    "recommendation_detail": "Basic analysis completed - requires detailed review"
-                })
+
+                # Get evaluation_result, create fallback if needed
+                if state.evaluation_result:
+                    evaluation_result = state.evaluation_result
+                else:
+                    from src.schemas.output_schemas import EvaluationResult
+                    evaluation_result = EvaluationResult(
+                        opportunity_score=50,
+                        dimension_scores={"trend": 50, "market": 50, "competition": 50, "profit": 50},
+                        swot_analysis={"strengths": [], "weaknesses": [], "opportunities": [], "threats": []},
+                        recommendation="cautious",
+                        recommendation_detail="Basic analysis completed - requires detailed review",
+                        key_risks=["No evaluation available"],
+                        success_factors=["Manual review needed"]
+                    )
 
                 self.logger.info("📋 SYNTHESIZING RESULTS FOR REPORT GENERATION")
                 self.logger.info(f"   Trend: {len(trend_analysis)} chars")
                 self.logger.info(f"   Market: {len(market_analysis)} chars")
                 self.logger.info(f"   Competition: {len(competition_analysis)} chars")
                 self.logger.info(f"   Profit: {len(profit_analysis)} chars")
-                self.logger.info(f"   Evaluation Score: {evaluation_result.get('opportunity_score', 50)}")
+                self.logger.info(f"   Evaluation Score: {evaluation_result.opportunity_score}")
 
                 # Create and run report agent
                 from src.agents.evaluator_agents import ReportAgent
                 report_agent = ReportAgent()
 
-                # Convert evaluation_result to string if it's a dict
-                eval_result_str = str(evaluation_result) if isinstance(evaluation_result, dict) else evaluation_result
+                # Convert evaluation_result to JSON string (it's now always an object)
+                eval_result_str = evaluation_result.to_json()
 
                 report_llm_agent = report_agent.create_agent(
                     category=request.category,
@@ -767,15 +795,21 @@ class PipelineRunner:
                                     report_text += part.text
 
                             if report_text:
-                                report_result = report_agent.parse_result(report_text)
+                                # Store report text directly (no parsing needed for markdown report)
                                 state.report_text = report_text
-                                state.report_result = report_result
+                                state.report_result = {"report_text": report_text}
 
                                 self.logger.info("📋 REPORT GENERATION COMPLETED:")
                                 self.logger.info(f"   Report Length: {len(report_text)} characters")
-                                self.logger.info(f"   Has Executive Summary: {report_result.get('has_executive_summary', False)}")
-                                self.logger.info(f"   Has SWOT Analysis: {report_result.get('has_swot_analysis', False)}")
-                                self.logger.info(f"   Has Recommendations: {report_result.get('has_recommendations', False)}")
+
+                                # Check report content
+                                has_executive_summary = "Executive Summary" in report_text or "执行摘要" in report_text
+                                has_swot = "SWOT" in report_text or "优势" in report_text
+                                has_recommendations = "Recommendation" in report_text or "建议" in report_text
+
+                                self.logger.info(f"   Has Executive Summary: {has_executive_summary}")
+                                self.logger.info(f"   Has SWOT Analysis: {has_swot}")
+                                self.logger.info(f"   Has Recommendations: {has_recommendations}")
 
                             else:
                                 self.logger.warning("⚠️ No report text content found")
@@ -804,10 +838,10 @@ This analysis was completed with available data. A comprehensive evaluation requ
 - **Competition Analysis**: {competition_analysis[:200] if competition_analysis else 'Not available'}...
 - **Profit Analysis**: {profit_analysis[:200] if profit_analysis else 'Not available'}...
 
-## Evaluation Score: {evaluation_result.get('opportunity_score', 50)}/100
+## Evaluation Score: {evaluation_result.opportunity_score}/100
 
 ## Recommendation
-{evaluation_result.get('recommendation', 'proceed').upper()}
+{evaluation_result.recommendation.upper()}
 
 ---
 *Report generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
@@ -824,6 +858,12 @@ This analysis was completed with available data. A comprehensive evaluation requ
             self.logger.info("🎉 Pipeline execution completed")
 
             execution_time = (datetime.now() - start_time).total_seconds()
+
+            # Save report to local file
+            try:
+                self._save_report_to_file(state, request)
+            except Exception as save_error:
+                self.logger.warning(f"⚠️ Failed to save report to file: {save_error}")
 
             return Result.Ok(PipelineResult(
                 success=True,
@@ -988,6 +1028,65 @@ This analysis was completed with available data. A comprehensive evaluation requ
 
         state.update_timestamp()
         return state
+
+    def _save_report_to_file(
+        self,
+        state: AnalysisState,
+        request: AnalysisRequest
+    ) -> None:
+        """
+        Save analysis report to local file.
+
+        Args:
+            state: Analysis state containing report
+            request: Original analysis request
+        """
+        from pathlib import Path
+        import json
+
+        # Create reports directory if it doesn't exist
+        reports_dir = Path("reports")
+        reports_dir.mkdir(exist_ok=True)
+
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        category_slug = request.category.replace(" ", "_").replace("/", "_")
+        base_filename = f"{category_slug}_{request.target_market}_{timestamp}"
+
+        # Save Markdown report
+        if hasattr(state, 'report_text') and state.report_text:
+            md_file = reports_dir / f"{base_filename}.md"
+            with open(md_file, 'w', encoding='utf-8') as f:
+                f.write(state.report_text)
+            self.logger.info(f"📄 Markdown report saved: {md_file}")
+
+        # Save JSON data (complete analysis results)
+        json_file = reports_dir / f"{base_filename}.json"
+        export_data = {
+            "metadata": {
+                "category": request.category,
+                "target_market": request.target_market,
+                "business_model": request.business_model,
+                "budget_range": request.budget_range,
+                "timestamp": timestamp,
+                "generated_at": datetime.now().isoformat()
+            },
+            "evaluation": {
+                "score": getattr(state, 'evaluation_score', 0),
+                "result": getattr(state, 'evaluation_result', {})
+            },
+            "analyses": {
+                "trend": state.trend_analysis.to_dict() if state.trend_analysis and hasattr(state.trend_analysis, 'to_dict') else str(state.trend_analysis),
+                "market": state.market_analysis.to_dict() if state.market_analysis and hasattr(state.market_analysis, 'to_dict') else str(state.market_analysis),
+                "competition": state.competition_analysis.to_dict() if state.competition_analysis and hasattr(state.competition_analysis, 'to_dict') else str(state.competition_analysis),
+                "profit": state.profit_analysis.to_dict() if state.profit_analysis and hasattr(state.profit_analysis, 'to_dict') else str(state.profit_analysis)
+            },
+            "report_text": getattr(state, 'report_text', '')
+        }
+
+        with open(json_file, 'w', encoding='utf-8') as f:
+            json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
+        self.logger.info(f"📊 JSON data saved: {json_file}")
 
 
 def create_runner(

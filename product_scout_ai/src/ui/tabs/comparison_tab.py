@@ -203,8 +203,16 @@ def create_comparison_tab():
                 eval_a = state_a_data.get("evaluation_result")
                 eval_b = state_b_data.get("evaluation_result")
 
-                overall_a = eval_a.opportunity_score if eval_a else 0
-                overall_b = eval_b.opportunity_score if eval_b else 0
+                # Defensive access - handle both dict and object
+                if eval_a:
+                    overall_a = eval_a.get("opportunity_score", 0) if isinstance(eval_a, dict) else eval_a.opportunity_score
+                else:
+                    overall_a = 0
+
+                if eval_b:
+                    overall_b = eval_b.get("opportunity_score", 0) if isinstance(eval_b, dict) else eval_b.opportunity_score
+                else:
+                    overall_b = 0
                 overall_diff = overall_a - overall_b
                 overall_winner = name_a if overall_diff > 0 else (name_b if overall_diff < 0 else "相同")
                 table_data.append(["总分", overall_a, overall_b, overall_diff, overall_winner])
