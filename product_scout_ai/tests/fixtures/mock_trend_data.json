@@ -1,0 +1,76 @@
+{
+  "portable_blender_trends": {
+    "keywords": ["portable blender"],
+    "geo": "US",
+    "timeframe": "today 12-m",
+    "trends": [
+      {
+        "keyword": "portable blender",
+        "average_interest": 65,
+        "peak_interest": 100,
+        "current_interest": 72,
+        "yoy_change": 15,
+        "trend_direction": "rising",
+        "seasonality": {
+          "peak_months": ["November", "December", "January"],
+          "low_months": ["February", "March", "April"]
+        },
+        "related_queries": [
+          {"query": "portable blender usb rechargeable", "trend": "rising"},
+          {"query": "mini blender for smoothies", "trend": "rising"},
+          {"query": "blendjet", "trend": "stable"},
+          {"query": "travel blender", "trend": "rising"}
+        ]
+      }
+    ],
+    "overall_trend_score": 75,
+    "trend_direction": "rising"
+  },
+  "declining_trend": {
+    "keywords": ["fidget spinner"],
+    "geo": "US",
+    "timeframe": "today 12-m",
+    "trends": [
+      {
+        "keyword": "fidget spinner",
+        "average_interest": 15,
+        "peak_interest": 100,
+        "current_interest": 8,
+        "yoy_change": -45,
+        "trend_direction": "declining",
+        "seasonality": {
+          "peak_months": [],
+          "low_months": []
+        },
+        "related_queries": []
+      }
+    ],
+    "overall_trend_score": 20,
+    "trend_direction": "declining"
+  },
+  "stable_trend": {
+    "keywords": ["water bottle"],
+    "geo": "US",
+    "timeframe": "today 12-m",
+    "trends": [
+      {
+        "keyword": "water bottle",
+        "average_interest": 70,
+        "peak_interest": 85,
+        "current_interest": 68,
+        "yoy_change": 2,
+        "trend_direction": "stable",
+        "seasonality": {
+          "peak_months": ["May", "June", "July"],
+          "low_months": ["December", "January"]
+        },
+        "related_queries": [
+          {"query": "insulated water bottle", "trend": "stable"},
+          {"query": "reusable water bottle", "trend": "rising"}
+        ]
+      }
+    ],
+    "overall_trend_score": 65,
+    "trend_direction": "stable"
+  }
+}

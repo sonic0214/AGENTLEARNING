@@ -1,0 +1,37 @@
+{
+  "portable_blender": {
+    "category": "portable blender",
+    "target_market": "US",
+    "budget_range": "medium",
+    "business_model": "amazon_fba",
+    "keywords": ["portable blender", "mini blender", "travel blender", "usb blender"]
+  },
+  "smart_home": {
+    "category": "smart home devices",
+    "target_market": "US",
+    "budget_range": "high",
+    "business_model": "amazon_fba",
+    "keywords": ["smart home", "smart plug", "smart bulb", "home automation"]
+  },
+  "yoga_mat": {
+    "category": "yoga mat",
+    "target_market": "US",
+    "budget_range": "low",
+    "business_model": "dropshipping",
+    "keywords": ["yoga mat", "exercise mat", "fitness mat"]
+  },
+  "minimal_request": {
+    "category": "test product",
+    "target_market": "US",
+    "budget_range": "medium",
+    "business_model": "amazon_fba",
+    "keywords": []
+  },
+  "invalid_empty_category": {
+    "category": "",
+    "target_market": "US",
+    "budget_range": "medium",
+    "business_model": "amazon_fba",
+    "keywords": []
+  }
+}
