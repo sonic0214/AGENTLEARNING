@@ -28,6 +28,7 @@ from ..components.result_panels import (
     format_swot_analysis,
     format_risks_and_factors,
 )
+from ..utils.compatibility import apply_gradio_fixes
 
 
 # Market options
@@ -68,13 +69,13 @@ def create_analysis_tab():
                 category_input = gr.Textbox(
                     label="产品类别 *",
                     placeholder="例如：便携式榨汁机、智能手表、瑜伽垫...",
-                    max_lines=1,
+                    lines=1,
                     info="请输入您想分析的产品类别或关键词"
                 )
                 keywords_input = gr.Textbox(
                     label="补充关键词（可选）",
                     placeholder="例如：便携、户外、健身（用逗号分隔）",
-                    max_lines=1,
+                    lines=1,
                     info="最多 10 个关键词，用逗号分隔"
                 )
 

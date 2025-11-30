@@ -27,10 +27,34 @@ def format_trend_analysis(trend_analysis: Optional[Dict[str, Any]]) -> str:
     if not trend_analysis:
         return "*暂无趋势分析数据*"
 
-    score = trend_analysis.get("trend_score", 0)
-    direction = trend_analysis.get("trend_direction", "unknown")
-    seasonality = trend_analysis.get("seasonality", {})
-    related_queries = trend_analysis.get("related_queries", [])
+    # Try to get comprehensive data from multiple sources
+    score = 0
+    direction = "unknown"
+    seasonality = {}
+    related_queries = []
+
+    # Direct fields
+    if trend_analysis.get("trend_score") is not None:
+        score = int(trend_analysis["trend_score"])
+    elif trend_analysis.get("raw_data"):
+        score = int(trend_analysis["raw_data"].get("trend_score", 50))
+
+    if trend_analysis.get("trend_direction"):
+        direction = trend_analysis["trend_direction"]
+    elif trend_analysis.get("raw_data"):
+        direction = trend_analysis["raw_data"].get("trend_direction", "稳定")
+
+    if trend_analysis.get("seasonality"):
+        seasonality = trend_analysis["seasonality"]
+    elif trend_analysis.get("raw_data"):
+        seasonality = trend_analysis["raw_data"].get("seasonality", {})
+
+    if trend_analysis.get("related_queries"):
+        related_queries = trend_analysis["related_queries"]
+    elif trend_analysis.get("raw_data"):
+        related_queries = trend_analysis["raw_data"].get("related_queries", [])
+
+    # Use the already extracted values from above
 
     md = f"""
 ### 趋势评分: {score}/100 ({format_score_label(score)})

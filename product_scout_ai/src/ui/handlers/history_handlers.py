@@ -54,9 +54,30 @@ def get_history_dataframe(
             # Get score from state if available
             score = 0
             recommendation = "N/A"
-            if entry.state and entry.state.evaluation_result:
-                score = entry.state.evaluation_result.opportunity_score
-                recommendation = entry.state.evaluation_result.recommendation
+
+            # Try multiple ways to get the score
+            if entry.state:
+                if hasattr(entry.state, 'evaluation_result') and entry.state.evaluation_result:
+                    score = entry.state.evaluation_result.opportunity_score
+                    recommendation = entry.state.evaluation_result.recommendation
+                elif hasattr(entry.state, 'evaluation_score') and entry.state.evaluation_score:
+                    # Fallback to evaluation_score if evaluation_result is not available
+                    score = entry.state.evaluation_score
+                    recommendation = getattr(entry.state, 'recommendation', "N/A")
+                elif hasattr(entry.state, 'opportunity_score') and entry.state.opportunity_score:
+                    # Another fallback for older records
+                    score = entry.state.opportunity_score
+                    recommendation = getattr(entry.state, 'recommendation', "N/A")
+                else:
+                    # Try to extract from JSON or stored data
+                    try:
+                        if hasattr(entry.state, 'raw_result') and entry.state.raw_result:
+                            import json
+                            raw_data = json.loads(entry.state.raw_result) if isinstance(entry.state.raw_result, str) else entry.state.raw_result
+                            score = raw_data.get('opportunity_score', 0)
+                            recommendation = raw_data.get('recommendation', 'N/A')
+                    except:
+                        pass
 
             data.append({
                 "日期": entry.timestamp.strftime("%Y-%m-%d %H:%M") if hasattr(entry, 'timestamp') else "N/A",

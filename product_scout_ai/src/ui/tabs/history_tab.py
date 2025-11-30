@@ -46,7 +46,7 @@ def create_history_tab():
             category_filter = gr.Textbox(
                 label="按类别筛选",
                 placeholder="输入关键词...",
-                max_lines=1,
+                lines=1,
                 scale=2
             )
             market_filter = gr.Dropdown(

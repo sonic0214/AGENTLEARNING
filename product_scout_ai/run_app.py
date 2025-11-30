@@ -108,14 +108,13 @@ def run_gradio_app():
     """Run the Gradio application directly."""
     print("🚀 Starting Gradio application...")
 
-    # Add src to Python path
-    src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
-    sys.path.insert(0, src_path)
+    # Add project root to Python path
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, project_root)
 
     # Run the app
     try:
-        import ui.app
-        from ui.app import main
+        from src.ui.app import main
 
         # Set default arguments
         server_name = "0.0.0.0"

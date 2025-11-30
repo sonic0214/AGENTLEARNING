@@ -220,24 +220,67 @@ class ExportService:
             )
 
             if self.config.include_raw_data:
-                data["analyses"] = {
-                    "trend": (
-                        result.state.trend_analysis.to_dict()
-                        if result.state.trend_analysis else None
-                    ),
-                    "market": (
-                        result.state.market_analysis.to_dict()
-                        if result.state.market_analysis else None
-                    ),
-                    "competition": (
-                        result.state.competition_analysis.to_dict()
-                        if result.state.competition_analysis else None
-                    ),
-                    "profit": (
-                        result.state.profit_analysis.to_dict()
-                        if result.state.profit_analysis else None
-                    )
-                }
+                # Build analyses with better fallback handling
+                analyses = {}
+
+                # Trend analysis
+                if result.state and result.state.trend_analysis:
+                    try:
+                        analyses["trend"] = result.state.trend_analysis.to_dict()
+                    except Exception:
+                        # Fallback to basic structure
+                        analyses["trend"] = {
+                            "trend_score": getattr(result.state.trend_analysis, 'trend_score', 50),
+                            "trend_direction": getattr(result.state.trend_analysis, 'trend_direction', 'stable'),
+                            "seasonality": getattr(result.state.trend_analysis, 'seasonality', {}),
+                            "related_queries": getattr(result.state.trend_analysis, 'related_queries', [])
+                        }
+                else:
+                    analyses["trend"] = None
+
+                # Market analysis
+                if result.state and result.state.market_analysis:
+                    try:
+                        analyses["market"] = result.state.market_analysis.to_dict()
+                    except Exception:
+                        analyses["market"] = {
+                            "market_score": getattr(result.state.market_analysis, 'market_score', 50),
+                            "market_size": getattr(result.state.market_analysis, 'market_size', 'Unknown'),
+                            "growth_rate": getattr(result.state.market_analysis, 'growth_rate', 'Unknown'),
+                            "customer_segments": getattr(result.state.market_analysis, 'customer_segments', [])
+                        }
+                else:
+                    analyses["market"] = None
+
+                # Competition analysis
+                if result.state and result.state.competition_analysis:
+                    try:
+                        analyses["competition"] = result.state.competition_analysis.to_dict()
+                    except Exception:
+                        analyses["competition"] = {
+                            "competition_score": getattr(result.state.competition_analysis, 'competition_score', 50),
+                            "competitors": getattr(result.state.competition_analysis, 'competitors', []),
+                            "entry_barriers": getattr(result.state.competition_analysis, 'entry_barriers', 'Medium'),
+                            "pricing_range": getattr(result.state.competition_analysis, 'pricing_range', 'Unknown')
+                        }
+                else:
+                    analyses["competition"] = None
+
+                # Profit analysis
+                if result.state and result.state.profit_analysis:
+                    try:
+                        analyses["profit"] = result.state.profit_analysis.to_dict()
+                    except Exception:
+                        analyses["profit"] = {
+                            "profit_score": getattr(result.state.profit_analysis, 'profit_score', 50),
+                            "unit_economics": getattr(result.state.profit_analysis, 'unit_economics', {}),
+                            "roi_estimate": getattr(result.state.profit_analysis, 'roi_estimate', 'Unknown'),
+                            "break_even_time": getattr(result.state.profit_analysis, 'break_even_time', 'Unknown')
+                        }
+                else:
+                    analyses["profit"] = None
+
+                data["analyses"] = analyses
 
             data["evaluation"] = (
                 result.state.evaluation_result.to_dict()

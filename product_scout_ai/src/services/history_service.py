@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import json
 import uuid
+import os
+from pathlib import Path
 
 from src.schemas.input_schemas import AnalysisRequest
 from src.schemas.state_schemas import AnalysisState
@@ -26,8 +28,8 @@ class HistoryServiceConfig:
         history_file_path: Path for history file
     """
     max_entries: int = 100
-    persist_to_file: bool = False
-    history_file_path: str = "analysis_history.json"
+    persist_to_file: bool = True
+    history_file_path: str = "data/analysis_history.json"
 
 
 @dataclass
@@ -100,31 +102,53 @@ class HistoryService:
 
     def _load_history(self) -> None:
         """Load history from file."""
+        if not self.config.persist_to_file:
+            return
+
+        # Ensure directory exists
+        history_path = Path(self.config.history_file_path)
+        history_path.parent.mkdir(parents=True, exist_ok=True)
+
         try:
-            with open(self.config.history_file_path, 'r') as f:
-                data = json.load(f)
-                self._history = [
-                    ServiceHistoryEntry.from_dict(entry)
-                    for entry in data
-                ]
-        except (FileNotFoundError, json.JSONDecodeError):
+            if history_path.exists():
+                with open(history_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self._history = [
+                        ServiceHistoryEntry.from_dict(entry)
+                        for entry in data
+                    ]
+                    print(f"✅ Loaded {len(self._history)} history entries from {history_path}")
+            else:
+                self._history = []
+                print(f"📝 History file {history_path} not found, starting fresh")
+        except (FileNotFoundError, json.JSONDecodeError, IOError) as e:
             self._history = []
+            print(f"⚠️ Error loading history file {history_path}: {e}")
+            print(f"📝 Starting with empty history")
 
     def _save_history(self) -> None:
         """Save history to file."""
         if not self.config.persist_to_file:
             return
 
+        # Ensure directory exists
+        history_path = Path(self.config.history_file_path)
+        history_path.parent.mkdir(parents=True, exist_ok=True)
+
         try:
-            with open(self.config.history_file_path, 'w') as f:
+            with open(history_path, 'w', encoding='utf-8') as f:
                 json.dump(
                     [entry.to_dict() for entry in self._history],
                     f,
                     indent=2,
-                    default=str
+                    default=str,
+                    ensure_ascii=False
                 )
-        except IOError:
-            pass  # Silently fail on write errors
+            print(f"💾 Saved {len(self._history)} history entries to {history_path}")
+        except IOError as e:
+            print(f"⚠️ Error saving history file {history_path}: {e}")
+        except Exception as e:
+            print(f"⚠️ Unexpected error saving history: {e}")
 
     def add_entry(
         self,

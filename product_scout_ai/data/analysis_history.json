@@ -1,0 +1,26 @@
+[
+  {
+    "request": {
+      "category": "充电宝",
+      "target_market": "US",
+      "budget_range": "medium",
+      "business_model": "amazon_fba",
+      "keywords": []
+    },
+    "timestamp": "2025-12-01T00:11:58.980995",
+    "execution_time": 38.920351,
+    "success": true
+  },
+  {
+    "request": {
+      "category": "机械键盘",
+      "target_market": "US",
+      "budget_range": "medium",
+      "business_model": "amazon_fba",
+      "keywords": []
+    },
+    "timestamp": "2025-12-01T00:27:07.613397",
+    "execution_time": 34.762907,
+    "success": true
+  }
+]

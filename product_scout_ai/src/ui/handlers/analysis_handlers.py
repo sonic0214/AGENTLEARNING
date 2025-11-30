@@ -256,17 +256,44 @@ def get_dimension_scores(result_data: Dict[str, Any]) -> Dict[str, int]:
     """
     scores = {}
 
+    # Trend score
     if result_data.get("trend_analysis"):
-        scores["趋势"] = result_data["trend_analysis"].get("trend_score", 0)
+        trend_data = result_data["trend_analysis"]
+        # Try multiple ways to get the score
+        trend_score = trend_data.get("trend_score")
+        if trend_score is None:
+            # Try to get from raw_data or calculate if possible
+            raw_data = trend_data.get("raw_data", {})
+            trend_score = raw_data.get("trend_score", 50)  # Default fallback
+        scores["趋势"] = int(trend_score) if trend_score else 50
 
+    # Market score
     if result_data.get("market_analysis"):
-        scores["市场"] = result_data["market_analysis"].get("market_score", 0)
+        market_data = result_data["market_analysis"]
+        market_score = market_data.get("market_score")
+        if market_score is None:
+            # Try raw_data as fallback
+            raw_data = market_data.get("raw_data", {})
+            market_score = raw_data.get("market_score", 50)
+        scores["市场"] = int(market_score) if market_score else 50
 
+    # Competition score
     if result_data.get("competition_analysis"):
-        scores["竞争"] = result_data["competition_analysis"].get("competition_score", 0)
+        competition_data = result_data["competition_analysis"]
+        competition_score = competition_data.get("competition_score")
+        if competition_score is None:
+            raw_data = competition_data.get("raw_data", {})
+            competition_score = raw_data.get("competition_score", 50)
+        scores["竞争"] = int(competition_score) if competition_score else 50
 
+    # Profit score
     if result_data.get("profit_analysis"):
-        scores["利润"] = result_data["profit_analysis"].get("profit_score", 0)
+        profit_data = result_data["profit_analysis"]
+        profit_score = profit_data.get("profit_score")
+        if profit_score is None:
+            raw_data = profit_data.get("raw_data", {})
+            profit_score = raw_data.get("profit_score", 50)
+        scores["利润"] = int(profit_score) if profit_score else 50
 
     return scores
 
