@@ -299,7 +299,7 @@ def create_analysis_tab():
                 "US",  # market
                 "medium",  # budget
                 "amazon_fba",  # model
-                gr.update(value="准备就绪"),  # status
+                gr.update(value="Ready"),  # status
                 gr.update(visible=False),  # error
                 gr.update(visible=False),  # results
                 None, None, None, None,  # scores

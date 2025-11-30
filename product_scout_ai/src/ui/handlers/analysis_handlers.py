@@ -14,15 +14,15 @@ from src.workflows.analysis_pipeline import PipelineResult
 
 # Phase descriptions for progress display
 PHASE_DESCRIPTIONS = {
-    "initialized": ("初始化", 0.0),
-    "analyzing_trends": ("分析市场趋势", 0.15),
-    "analyzing_market": ("分析市场规模", 0.35),
-    "analyzing_competition": ("分析竞争格局", 0.55),
-    "analyzing_profit": ("分析利润空间", 0.75),
-    "evaluating": ("综合评估", 0.90),
-    "generating_report": ("生成报告", 0.95),
-    "completed": ("分析完成", 1.0),
-    "failed": ("分析失败", 1.0),
+    "initialized": ("Initializing", 0.0),
+    "analyzing_trends": ("Analyzing Market Trends", 0.15),
+    "analyzing_market": ("Analyzing Market Size", 0.35),
+    "analyzing_competition": ("Analyzing Competition", 0.55),
+    "analyzing_profit": ("Analyzing Profitability", 0.75),
+    "evaluating": ("Comprehensive Evaluation", 0.90),
+    "generating_report": ("Generating Report", 0.95),
+    "completed": ("Analysis Complete", 1.0),
+    "failed": ("Analysis Failed", 1.0),
 }
 
 
@@ -47,19 +47,19 @@ def validate_inputs(
         Tuple of (is_valid, error_message)
     """
     if not category or not category.strip():
-        return False, "产品类别不能为空"
+        return False, "Product category cannot be empty"
 
     if len(category.strip()) < 2:
-        return False, "产品类别至少需要 2 个字符"
+        return False, "Product category must be at least 2 characters"
 
     if len(category.strip()) > 200:
-        return False, "产品类别不能超过 200 个字符"
+        return False, "Product category cannot exceed 200 characters"
 
     # Parse and validate keywords
     if keywords:
         keyword_list = [k.strip() for k in keywords.split(",") if k.strip()]
         if len(keyword_list) > 10:
-            return False, "关键词不能超过 10 个"
+            return False, "Keywords cannot exceed 10"
 
     return True, ""
 
@@ -149,10 +149,10 @@ async def run_analysis(
             result_data = convert_result_to_dict(result)
             return True, result_data, ""
         else:
-            return False, {}, result.error or "分析失败，请重试"
+            return False, {}, result.error or "Analysis failed, please retry"
 
     except Exception as e:
-        return False, {}, f"分析出错: {str(e)}"
+        return False, {}, f"Analysis error: {str(e)}"
 
 
 def convert_result_to_dict(result: PipelineResult) -> Dict[str, Any]:
@@ -265,7 +265,7 @@ def get_dimension_scores(result_data: Dict[str, Any]) -> Dict[str, int]:
             # Try to get from raw_data or calculate if possible
             raw_data = trend_data.get("raw_data", {})
             trend_score = raw_data.get("trend_score", 50)  # Default fallback
-        scores["趋势"] = int(trend_score) if trend_score else 50
+        scores["Trend"] = int(trend_score) if trend_score else 50
 
     # Market score
     if result_data.get("market_analysis"):
@@ -275,7 +275,7 @@ def get_dimension_scores(result_data: Dict[str, Any]) -> Dict[str, int]:
             # Try raw_data as fallback
             raw_data = market_data.get("raw_data", {})
             market_score = raw_data.get("market_score", 50)
-        scores["市场"] = int(market_score) if market_score else 50
+        scores["Market"] = int(market_score) if market_score else 50
 
     # Competition score
     if result_data.get("competition_analysis"):
@@ -284,7 +284,7 @@ def get_dimension_scores(result_data: Dict[str, Any]) -> Dict[str, int]:
         if competition_score is None:
             raw_data = competition_data.get("raw_data", {})
             competition_score = raw_data.get("competition_score", 50)
-        scores["竞争"] = int(competition_score) if competition_score else 50
+        scores["Competition"] = int(competition_score) if competition_score else 50
 
     # Profit score
     if result_data.get("profit_analysis"):
@@ -293,7 +293,7 @@ def get_dimension_scores(result_data: Dict[str, Any]) -> Dict[str, int]:
         if profit_score is None:
             raw_data = profit_data.get("raw_data", {})
             profit_score = raw_data.get("profit_score", 50)
-        scores["利润"] = int(profit_score) if profit_score else 50
+        scores["Profit"] = int(profit_score) if profit_score else 50
 
     return scores
 
