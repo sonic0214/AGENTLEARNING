@@ -20,50 +20,50 @@ def create_comparison_tab():
     Returns:
         Dictionary of component references
     """
-    with gr.Tab("⚖️ 对比分析", id="compare"):
+    with gr.Tab("⚖️ Comparison", id="compare"):
         gr.Markdown("""
-        ## 对比分析
+        ## Comparison Analysis
 
-        选择两个历史分析结果进行对比，直观了解不同产品或市场的差异。
+        Select two historical analysis results to compare and understand the differences between different products or markets.
         """)
 
         # Selection Row
         with gr.Row():
             with gr.Column():
-                gr.Markdown("### 分析 A")
+                gr.Markdown("### Analysis A")
                 analysis_a = gr.Dropdown(
                     choices=[],
-                    label="选择第一个分析",
-                    info="从历史记录中选择"
+                    label="Select First Analysis",
+                    info="Choose from history"
                 )
-                summary_a = gr.Markdown("*请选择一个分析*")
+                summary_a = gr.Markdown("*Please select an analysis*")
 
             with gr.Column():
-                gr.Markdown("### 分析 B")
+                gr.Markdown("### Analysis B")
                 analysis_b = gr.Dropdown(
                     choices=[],
-                    label="选择第二个分析",
-                    info="从历史记录中选择"
+                    label="Select Second Analysis",
+                    info="Choose from history"
                 )
-                summary_b = gr.Markdown("*请选择一个分析*")
+                summary_b = gr.Markdown("*Please select an analysis*")
 
         # Refresh and Compare buttons
         with gr.Row():
-            refresh_btn = gr.Button("🔄 刷新列表", scale=1)
-            compare_btn = gr.Button("📊 开始对比", variant="primary", scale=2)
+            refresh_btn = gr.Button("🔄 Refresh List", scale=1)
+            compare_btn = gr.Button("📊 Start Comparison", variant="primary", scale=2)
 
         # Comparison Results (initially hidden)
         with gr.Column(visible=False) as comparison_results:
             gr.Markdown("---")
-            gr.Markdown("## 对比结果")
+            gr.Markdown("## Comparison Results")
 
             # Comparison Chart
-            comparison_chart = gr.Plot(label="雷达图对比")
+            comparison_chart = gr.Plot(label="Radar Chart Comparison")
 
             # Score Comparison Table
-            gr.Markdown("### 评分对比")
+            gr.Markdown("### Score Comparison")
             comparison_table = gr.Dataframe(
-                headers=["维度", "分析 A", "分析 B", "差异", "优势方"],
+                headers=["Dimension", "Analysis A", "Analysis B", "Difference", "Winner"],
                 datatype=["str", "number", "number", "number", "str"],
                 interactive=False
             )
@@ -87,7 +87,7 @@ def create_comparison_tab():
         def on_select_a(selection):
             """Handle selection of analysis A."""
             if not selection:
-                return "*请选择一个分析*", None
+                return "*Please select an analysis*", None
 
             # Parse index from selection
             try:
@@ -102,21 +102,21 @@ def create_comparison_tab():
                     category = entry.get("request", {}).get("category", "N/A")
 
                     summary = f"""
-**产品**: {category}
-**评分**: {score}/100
-**建议**: {rec}
+**Product**: {category}
+**Score**: {score}/100
+**Recommendation**: {rec}
 """
                     return summary, entry
                 else:
-                    return "*数据不完整*", entry
+                    return "*Incomplete data*", entry
 
             except Exception as e:
-                return f"*加载失败: {str(e)}*", None
+                return f"*Loading failed: {str(e)}*", None
 
         def on_select_b(selection):
             """Handle selection of analysis B."""
             if not selection:
-                return "*请选择一个分析*", None
+                return "*Please select an analysis*", None
 
             try:
                 options = get_history_for_dropdown()
@@ -130,16 +130,16 @@ def create_comparison_tab():
                     category = entry.get("request", {}).get("category", "N/A")
 
                     summary = f"""
-**产品**: {category}
-**评分**: {score}/100
-**建议**: {rec}
+**Product**: {category}
+**Score**: {score}/100
+**Recommendation**: {rec}
 """
                     return summary, entry
                 else:
-                    return "*数据不完整*", entry
+                    return "*Incomplete data*", entry
 
             except Exception as e:
-                return f"*加载失败: {str(e)}*", None
+                return f"*Loading failed: {str(e)}*", None
 
         def on_compare(entry_a, entry_b):
             """Perform comparison between two analyses."""
@@ -148,7 +148,7 @@ def create_comparison_tab():
                     gr.update(visible=False),
                     None,
                     [],
-                    "请选择两个分析进行对比"
+                    "Please select two analyses to compare"
                 )
 
             try:
@@ -161,42 +161,42 @@ def create_comparison_tab():
 
                 # Trend
                 if state_a_data.get("trend_analysis"):
-                    scores_a["趋势"] = state_a_data["trend_analysis"].trend_score
+                    scores_a["Trend"] = state_a_data["trend_analysis"].trend_score
                 if state_b_data.get("trend_analysis"):
-                    scores_b["趋势"] = state_b_data["trend_analysis"].trend_score
+                    scores_b["Trend"] = state_b_data["trend_analysis"].trend_score
 
                 # Market
                 if state_a_data.get("market_analysis"):
-                    scores_a["市场"] = state_a_data["market_analysis"].market_score
+                    scores_a["Market"] = state_a_data["market_analysis"].market_score
                 if state_b_data.get("market_analysis"):
-                    scores_b["市场"] = state_b_data["market_analysis"].market_score
+                    scores_b["Market"] = state_b_data["market_analysis"].market_score
 
                 # Competition
                 if state_a_data.get("competition_analysis"):
-                    scores_a["竞争"] = state_a_data["competition_analysis"].competition_score
+                    scores_a["Competition"] = state_a_data["competition_analysis"].competition_score
                 if state_b_data.get("competition_analysis"):
-                    scores_b["竞争"] = state_b_data["competition_analysis"].competition_score
+                    scores_b["Competition"] = state_b_data["competition_analysis"].competition_score
 
                 # Profit
                 if state_a_data.get("profit_analysis"):
-                    scores_a["利润"] = state_a_data["profit_analysis"].profit_score
+                    scores_a["Profit"] = state_a_data["profit_analysis"].profit_score
                 if state_b_data.get("profit_analysis"):
-                    scores_b["利润"] = state_b_data["profit_analysis"].profit_score
+                    scores_b["Profit"] = state_b_data["profit_analysis"].profit_score
 
                 # Get names
-                name_a = entry_a.get("request", {}).get("category", "分析 A") if entry_a.get("request") else "分析 A"
-                name_b = entry_b.get("request", {}).get("category", "分析 B") if entry_b.get("request") else "分析 B"
+                name_a = entry_a.get("request", {}).get("category", "Analysis A") if entry_a.get("request") else "Analysis A"
+                name_b = entry_b.get("request", {}).get("category", "Analysis B") if entry_b.get("request") else "Analysis B"
 
                 # Create comparison chart
-                chart = create_comparison_radar(scores_a, scores_b, name_a, name_b, "维度对比")
+                chart = create_comparison_radar(scores_a, scores_b, name_a, name_b, "Dimension Comparison")
 
                 # Create comparison table
                 table_data = []
-                for dim in ["趋势", "市场", "竞争", "利润"]:
+                for dim in ["Trend", "Market", "Competition", "Profit"]:
                     score_a = scores_a.get(dim, 0)
                     score_b = scores_b.get(dim, 0)
                     diff = score_a - score_b
-                    winner = name_a if diff > 0 else (name_b if diff < 0 else "相同")
+                    winner = name_a if diff > 0 else (name_b if diff < 0 else "Tie")
                     table_data.append([dim, score_a, score_b, diff, winner])
 
                 # Overall scores
@@ -214,16 +214,16 @@ def create_comparison_tab():
                 else:
                     overall_b = 0
                 overall_diff = overall_a - overall_b
-                overall_winner = name_a if overall_diff > 0 else (name_b if overall_diff < 0 else "相同")
-                table_data.append(["总分", overall_a, overall_b, overall_diff, overall_winner])
+                overall_winner = name_a if overall_diff > 0 else (name_b if overall_diff < 0 else "Tie")
+                table_data.append(["Overall", overall_a, overall_b, overall_diff, overall_winner])
 
                 # Summary
                 if overall_diff > 10:
-                    summary = f"### 对比结论\n\n**{name_a}** 整体表现更优，机会评分高出 {abs(overall_diff)} 分。"
+                    summary = f"### Comparison Conclusion\n\n**{name_a}** performs better overall, with an opportunity score {abs(overall_diff)} points higher."
                 elif overall_diff < -10:
-                    summary = f"### 对比结论\n\n**{name_b}** 整体表现更优，机会评分高出 {abs(overall_diff)} 分。"
+                    summary = f"### Comparison Conclusion\n\n**{name_b}** performs better overall, with an opportunity score {abs(overall_diff)} points higher."
                 else:
-                    summary = f"### 对比结论\n\n两个产品的机会评分相近（差异 {abs(overall_diff)} 分），需要根据具体情况选择。"
+                    summary = f"### Comparison Conclusion\n\nBoth products have similar opportunity scores (difference of {abs(overall_diff)} points). Selection depends on specific circumstances."
 
                 return (
                     gr.update(visible=True),
@@ -237,7 +237,7 @@ def create_comparison_tab():
                     gr.update(visible=False),
                     None,
                     [],
-                    f"对比失败: {str(e)}"
+                    f"Comparison failed: {str(e)}"
                 )
 
         # Wire events

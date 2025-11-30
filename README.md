@@ -540,7 +540,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 - **Author**: Sonic0214
 - **Email**: buffoon1234@gmail.com
 - **GitHub**: [@sonic0214](https://github.com/sonic0214)
-- **Project Link**: [https://github.com/sonic0214/AgentLearning](https://github.com/sonic0214/AgentLearning)
+- **Project Link**: [https://github.com/sonic0214/AGENTLEARNING](https://github.com/sonic0214/AGENTLEARNING)
 
 ---
 

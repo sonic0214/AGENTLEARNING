@@ -22,5 +22,17 @@
     "timestamp": "2025-12-01T00:27:07.613397",
     "execution_time": 34.762907,
     "success": true
+  },
+  {
+    "request": {
+      "category": "labubu",
+      "target_market": "US",
+      "budget_range": "medium",
+      "business_model": "amazon_fba",
+      "keywords": []
+    },
+    "timestamp": "2025-12-01T01:42:02.650261",
+    "execution_time": 45.306328,
+    "success": true
   }
 ]

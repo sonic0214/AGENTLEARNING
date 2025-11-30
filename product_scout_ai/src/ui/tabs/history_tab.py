@@ -15,7 +15,7 @@ from ..handlers.history_handlers import (
 
 
 # Market filter options
-MARKET_FILTER_OPTIONS = ["全部", "US", "EU", "UK", "CA", "AU", "JP", "DE", "FR"]
+MARKET_FILTER_OPTIONS = ["All", "US", "EU", "UK", "CA", "AU", "JP", "DE", "FR"]
 
 
 def create_history_tab():
@@ -25,55 +25,55 @@ def create_history_tab():
     Returns:
         Dictionary of component references
     """
-    with gr.Tab("📋 历史记录", id="history"):
+    with gr.Tab("📋 History", id="history"):
         gr.Markdown("""
-        ## 分析历史
+        ## Analysis History
 
-        查看过去的产品分析记录，支持按类别和市场筛选。
+        View past product analysis records with filtering by category and market.
         """)
 
         # Statistics Row
         with gr.Row():
-            total_stat = gr.Number(label="总分析数", precision=0, interactive=False)
-            success_stat = gr.Number(label="成功次数", precision=0, interactive=False)
-            rate_stat = gr.Number(label="成功率 (%)", precision=1, interactive=False)
-            avg_time_stat = gr.Number(label="平均耗时 (s)", precision=1, interactive=False)
+            total_stat = gr.Number(label="Total Analyses", precision=0, interactive=False)
+            success_stat = gr.Number(label="Successful", precision=0, interactive=False)
+            rate_stat = gr.Number(label="Success Rate (%)", precision=1, interactive=False)
+            avg_time_stat = gr.Number(label="Avg Time (s)", precision=1, interactive=False)
 
         gr.Markdown("---")
 
         # Filters Row
         with gr.Row():
             category_filter = gr.Textbox(
-                label="按类别筛选",
-                placeholder="输入关键词...",
+                label="Filter by Category",
+                placeholder="Enter keywords...",
                 lines=1,
                 scale=2
             )
             market_filter = gr.Dropdown(
                 choices=MARKET_FILTER_OPTIONS,
-                value="全部",
-                label="按市场筛选",
+                value="All",
+                label="Filter by Market",
                 scale=1
             )
             success_filter = gr.Checkbox(
-                label="仅显示成功",
+                label="Show Successful Only",
                 value=False,
                 scale=1
             )
-            refresh_btn = gr.Button("🔄 刷新", scale=1)
+            refresh_btn = gr.Button("🔄 Refresh", scale=1)
 
         # History Table
         history_table = gr.Dataframe(
-            headers=["日期", "产品类别", "市场", "模式", "评分", "建议", "耗时", "状态"],
+            headers=["Date", "Product Category", "Market", "Model", "Score", "Recommendation", "Time", "Status"],
             datatype=["str", "str", "str", "str", "number", "str", "str", "str"],
             interactive=False,
             wrap=True,
-            label="历史记录"
+            label="History Records"
         )
 
         # Actions Row
         with gr.Row():
-            clear_btn = gr.Button("🗑️ 清空历史", variant="stop")
+            clear_btn = gr.Button("🗑️ Clear History", variant="stop")
             clear_confirm = gr.Markdown(visible=False)
 
         # Event handlers
@@ -102,13 +102,13 @@ def create_history_tab():
                 stats["success_rate"] * 100 if stats["success_rate"] else 0,
                 stats["avg_time"],
                 df,
-                gr.update(visible=True, value=f"✅ 已清除 {count} 条记录")
+                gr.update(visible=True, value=f"✅ Cleared {count} records")
             )
 
         # Initial load on tab select
         def on_tab_select():
             """Load data when tab is selected."""
-            return load_history("", "全部", False)
+            return load_history("", "All", False)
 
         # Wire events
         refresh_btn.click(

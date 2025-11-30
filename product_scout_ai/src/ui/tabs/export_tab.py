@@ -14,7 +14,7 @@ from ..handlers.analysis_handlers import convert_result_to_dict
 
 
 # Export format options
-FORMAT_OPTIONS = ["JSON", "Markdown", "摘要"]
+FORMAT_OPTIONS = ["JSON", "Markdown", "Summary"]
 
 
 def create_export_tab():
@@ -24,11 +24,11 @@ def create_export_tab():
     Returns:
         Dictionary of component references
     """
-    with gr.Tab("📤 导出报告", id="export"):
+    with gr.Tab("📤 Export Report", id="export"):
         gr.Markdown("""
-        ## 导出分析报告
+        ## Export Analysis Report
 
-        将分析结果导出为 JSON 或 Markdown 格式，方便分享和存档。
+        Export analysis results as JSON or Markdown format for easy sharing and archiving.
         """)
 
         # Selection Row
@@ -36,37 +36,37 @@ def create_export_tab():
             with gr.Column(scale=2):
                 analysis_select = gr.Dropdown(
                     choices=[],
-                    label="选择要导出的分析",
-                    info="从历史记录中选择一个分析"
+                    label="Select Analysis to Export",
+                    info="Choose an analysis from history"
                 )
             with gr.Column(scale=1):
-                refresh_btn = gr.Button("🔄 刷新列表")
+                refresh_btn = gr.Button("🔄 Refresh List")
 
         # Export Options
         with gr.Row():
             format_radio = gr.Radio(
                 choices=FORMAT_OPTIONS,
                 value="Markdown",
-                label="导出格式",
-                info="选择导出的文件格式"
+                label="Export Format",
+                info="Select the export file format"
             )
 
         # Action Buttons
         with gr.Row():
-            preview_btn = gr.Button("👁️ 预览", scale=1)
-            export_btn = gr.Button("📥 下载", variant="primary", scale=2)
+            preview_btn = gr.Button("👁️ Preview", scale=1)
+            export_btn = gr.Button("📥 Download", variant="primary", scale=2)
 
         # Preview Section
-        gr.Markdown("### 预览")
+        gr.Markdown("### Preview")
         preview_content = gr.Code(
-            label="导出预览",
+            label="Export Preview",
             language="markdown",
             interactive=False,
             lines=20
         )
 
         # Download output (hidden file component)
-        download_file = gr.File(label="下载文件", visible=False)
+        download_file = gr.File(label="Download File", visible=False)
 
         # State for selected entry
         selected_entry = gr.State(value=None)
@@ -93,7 +93,7 @@ def create_export_tab():
         def on_preview(entry, format_type):
             """Generate preview."""
             if not entry:
-                return "请先选择一个分析"
+                return "Please select an analysis first"
 
             try:
                 # Convert entry to result dict format
@@ -170,14 +170,14 @@ def create_export_tab():
                         }
 
                 # Map format type
-                fmt_map = {"JSON": "JSON", "Markdown": "Markdown", "摘要": "Summary"}
+                fmt_map = {"JSON": "JSON", "Markdown": "Markdown", "Summary": "Summary"}
                 fmt = fmt_map.get(format_type, "Markdown")
 
                 content = get_export_preview(result_data, fmt)
                 return content
 
             except Exception as e:
-                return f"预览生成失败: {str(e)}"
+                return f"Preview generation failed: {str(e)}"
 
         def on_export(entry, format_type):
             """Export and create download file."""
@@ -235,7 +235,7 @@ def create_export_tab():
                         }
 
                 # Map format type
-                fmt_map = {"JSON": "JSON", "Markdown": "Markdown", "摘要": "Summary"}
+                fmt_map = {"JSON": "JSON", "Markdown": "Markdown", "Summary": "Summary"}
                 fmt = fmt_map.get(format_type, "Markdown")
 
                 content, filename = export_analysis(result_data, fmt)
