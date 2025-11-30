@@ -36,15 +36,15 @@ MARKET_OPTIONS = ["US", "EU", "UK", "CA", "AU", "JP", "DE", "FR"]
 
 # Budget options
 BUDGET_OPTIONS = ["low", "medium", "high"]
-BUDGET_LABELS = {"low": "低预算", "medium": "中等预算", "high": "高预算"}
+BUDGET_LABELS = {"low": "Low Budget", "medium": "Medium Budget", "high": "High Budget"}
 
 # Business model options
 MODEL_OPTIONS = ["amazon_fba", "dropshipping", "private_label", "wholesale"]
 MODEL_LABELS = {
     "amazon_fba": "Amazon FBA",
     "dropshipping": "Dropshipping",
-    "private_label": "自有品牌",
-    "wholesale": "批发"
+    "private_label": "Private Label",
+    "wholesale": "Wholesale"
 }
 
 
@@ -55,60 +55,60 @@ def create_analysis_tab():
     Returns:
         Dictionary of component references
     """
-    with gr.Tab("🔍 产品分析", id="analysis"):
+    with gr.Tab("🔍 Product Analysis", id="analysis"):
         # Header
         gr.Markdown("""
-        ## 新建产品分析
+        ## New Product Analysis
 
-        输入您想分析的产品类别，系统将从趋势、市场、竞争和利润四个维度进行全面评估。
+        Enter the product category you want to analyze. The system will provide comprehensive evaluation across four dimensions: trends, market, competition, and profitability.
         """)
 
         # Input Section
         with gr.Row():
             with gr.Column(scale=2):
                 category_input = gr.Textbox(
-                    label="产品类别 *",
-                    placeholder="例如：便携式榨汁机、智能手表、瑜伽垫...",
+                    label="Product Category *",
+                    placeholder="e.g., portable juicer, smart watch, yoga mat...",
                     lines=1,
-                    info="请输入您想分析的产品类别或关键词"
+                    info="Enter the product category or keywords you want to analyze"
                 )
                 keywords_input = gr.Textbox(
-                    label="补充关键词（可选）",
-                    placeholder="例如：便携、户外、健身（用逗号分隔）",
+                    label="Additional Keywords (Optional)",
+                    placeholder="e.g., portable, outdoor, fitness (comma separated)",
                     lines=1,
-                    info="最多 10 个关键词，用逗号分隔"
+                    info="Maximum 10 keywords, comma separated"
                 )
 
             with gr.Column(scale=1):
                 market_dropdown = gr.Dropdown(
                     choices=MARKET_OPTIONS,
                     value="US",
-                    label="目标市场",
-                    info="选择您要进入的市场"
+                    label="Target Market",
+                    info="Select the market you want to enter"
                 )
                 budget_radio = gr.Radio(
                     choices=BUDGET_OPTIONS,
                     value="medium",
-                    label="预算范围",
-                    info="您的初始投资预算"
+                    label="Budget Range",
+                    info="Your initial investment budget"
                 )
                 model_dropdown = gr.Dropdown(
                     choices=MODEL_OPTIONS,
                     value="amazon_fba",
-                    label="商业模式",
-                    info="您计划采用的销售模式"
+                    label="Business Model",
+                    info="The sales model you plan to adopt"
                 )
 
         # Buttons
         with gr.Row():
             run_btn = gr.Button(
-                "🚀 开始分析",
+                "🚀 Start Analysis",
                 variant="primary",
                 size="lg",
                 scale=2
             )
             clear_btn = gr.Button(
-                "🗑️ 清空",
+                "🗑️ Clear",
                 variant="secondary",
                 size="lg",
                 scale=1
@@ -116,8 +116,8 @@ def create_analysis_tab():
 
         # Status/Progress
         status_box = gr.Textbox(
-            label="状态",
-            value="准备就绪",
+            label="Status",
+            value="Ready",
             interactive=False,
             visible=True
         )
@@ -128,59 +128,59 @@ def create_analysis_tab():
         # Results Section (initially hidden)
         with gr.Column(visible=False) as results_section:
             gr.Markdown("---")
-            gr.Markdown("## 📊 分析结果")
+            gr.Markdown("## 📊 Analysis Results")
 
             # Overall Score Section
             overall_score_html = gr.HTML()
 
             # Dimension Scores
-            gr.Markdown("### 维度评分")
+            gr.Markdown("### Dimension Scores")
             with gr.Row():
                 trend_score_num = gr.Number(
-                    label="趋势评分",
+                    label="Trend Score",
                     precision=0,
                     interactive=False
                 )
                 market_score_num = gr.Number(
-                    label="市场评分",
+                    label="Market Score",
                     precision=0,
                     interactive=False
                 )
                 competition_score_num = gr.Number(
-                    label="竞争评分",
+                    label="Competition Score",
                     precision=0,
                     interactive=False
                 )
                 profit_score_num = gr.Number(
-                    label="利润评分",
+                    label="Profit Score",
                     precision=0,
                     interactive=False
                 )
 
             # Charts Row
             with gr.Row():
-                radar_chart = gr.Plot(label="维度雷达图")
-                bar_chart = gr.Plot(label="评分柱状图")
+                radar_chart = gr.Plot(label="Dimension Radar Chart")
+                bar_chart = gr.Plot(label="Score Bar Chart")
 
             # Detailed Analysis Sections
-            gr.Markdown("### 详细分析")
+            gr.Markdown("### Detailed Analysis")
 
-            with gr.Accordion("📈 趋势分析", open=False):
+            with gr.Accordion("📈 Trend Analysis", open=False):
                 trend_details = gr.Markdown()
 
-            with gr.Accordion("🌍 市场分析", open=False):
+            with gr.Accordion("🌍 Market Analysis", open=False):
                 market_details = gr.Markdown()
 
-            with gr.Accordion("⚔️ 竞争分析", open=False):
+            with gr.Accordion("⚔️ Competition Analysis", open=False):
                 competition_details = gr.Markdown()
 
-            with gr.Accordion("💰 利润分析", open=False):
+            with gr.Accordion("💰 Profit Analysis", open=False):
                 profit_details = gr.Markdown()
 
-            with gr.Accordion("📋 SWOT 分析", open=True):
+            with gr.Accordion("📋 SWOT Analysis", open=True):
                 swot_details = gr.Markdown()
 
-            with gr.Accordion("⚠️ 风险与成功要素", open=True):
+            with gr.Accordion("⚠️ Risks & Success Factors", open=True):
                 risks_factors_details = gr.Markdown()
 
         # State to store result
@@ -194,7 +194,7 @@ def create_analysis_tab():
             if not is_valid:
                 return (
                     gr.update(value=f"❌ {error}"),  # status
-                    gr.update(visible=True, value=f"**错误**: {error}"),  # error
+                    gr.update(visible=True, value=f"**Error**: {error}"),  # error
                     gr.update(visible=False),  # results
                     None, None, None, None,  # scores
                     None, None,  # charts
@@ -205,7 +205,7 @@ def create_analysis_tab():
 
             # Update status
             yield (
-                gr.update(value="🔄 正在分析..."),
+                gr.update(value="🔄 Analyzing..."),
                 gr.update(visible=False),
                 gr.update(visible=False),
                 None, None, None, None,
@@ -229,8 +229,8 @@ def create_analysis_tab():
 
                 if not success:
                     yield (
-                        gr.update(value=f"❌ 分析失败"),
-                        gr.update(visible=True, value=f"**错误**: {error_msg}"),
+                        gr.update(value=f"❌ Analysis Failed"),
+                        gr.update(visible=True, value=f"**Error**: {error_msg}"),
                         gr.update(visible=False),
                         None, None, None, None,
                         None, None,
@@ -245,8 +245,8 @@ def create_analysis_tab():
                 overall_score, recommendation, detail = get_overall_score(result_data)
 
                 # Create charts
-                radar = create_radar_chart(dimension_scores, "维度分析")
-                bar = create_bar_chart(dimension_scores, "评分对比")
+                radar = create_radar_chart(dimension_scores, "Dimension Analysis")
+                bar = create_bar_chart(dimension_scores, "Score Comparison")
 
                 # Format details
                 trend = result_data.get("trend_analysis", {})
@@ -269,13 +269,13 @@ def create_analysis_tab():
                 overall_html = format_overall_score(overall_score, recommendation, detail)
 
                 yield (
-                    gr.update(value=f"✅ 分析完成 (耗时: {result_data.get('execution_time', 0):.1f}s)"),
+                    gr.update(value=f"✅ Analysis Complete (Time: {result_data.get('execution_time', 0):.1f}s)"),
                     gr.update(visible=False),
                     gr.update(visible=True),
-                    dimension_scores.get("趋势", 0),
-                    dimension_scores.get("市场", 0),
-                    dimension_scores.get("竞争", 0),
-                    dimension_scores.get("利润", 0),
+                    dimension_scores.get("Trend", dimension_scores.get("趋势", 0)),
+                    dimension_scores.get("Market", dimension_scores.get("市场", 0)),
+                    dimension_scores.get("Competition", dimension_scores.get("竞争", 0)),
+                    dimension_scores.get("Profit", dimension_scores.get("利润", 0)),
                     radar,
                     bar,
                     trend_md,

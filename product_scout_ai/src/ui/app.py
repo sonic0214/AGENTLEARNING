@@ -33,9 +33,9 @@ def create_app() -> gr.Blocks:
         gr.Markdown("""
         # 🔍 ProductScout AI
 
-        ### 智能产品机会分析平台
+        ### Intelligent Product Opportunity Analysis Platform
 
-        基于 AI 多智能体技术，从趋势、市场、竞争和利润四个维度全面评估产品机会。
+        Powered by AI multi-agent technology, comprehensively evaluating product opportunities across four dimensions: trends, market, competition, and profitability.
         """)
 
         # Main Tabs
